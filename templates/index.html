@@ -1,181 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fondant Color Mixer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f6f8;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h1 {
-            color: #b14fc0;
-        }
-
-        .card {
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            max-width: 400px;
-            margin: 20px auto;
-        }
-
-        input[type="file"],
-        button {
-            margin: 10px;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 8px;
-            background-color: #b14fc0;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background-color: #9d44aa;
-        }
-
-        video, canvas, img {
-            margin-top: 10px;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 320px;
-        }
-
-        #result {
-            margin-top: 15px;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        #colorBox {
-            margin: 10px auto;
-            width: 100px;
-            height: 100px;
-            border-radius: 10px;
-            border: 2px solid #ccc;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Fondant Color Mixer</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>🎨 Fondant Color Mixer</h1>
-    <p>Select or capture a photo to analyze the fondant color.</p>
+  <h1>🎨 Fondant Color Mixer</h1>
+  <p>Select or capture an image to analyze its color.</p>
 
-    <div class="card">
-        <h3>📁 Upload a Photo</h3>
-        <input type="file" id="fileInput" accept="image/*" />
-        <button id="uploadButton">Analyze Uploaded Image</button>
-    </div>
+  <div class="upload-section">
+    <input type="file" id="fileInput" accept="image/*">
+    <button id="cameraButton">📷 Use Camera</button>
+  </div>
 
-    <div class="card">
-        <h3>📷 Take a Photo Using Camera</h3>
-        <button id="startCamera">Start Camera</button>
-        <video id="cameraStream" autoplay hidden></video>
-        <button id="takePhoto" hidden>Take Photo</button>
-        <canvas id="photoCanvas" width="320" height="240" hidden></canvas>
-    </div>
+  <div id="cameraContainer" style="display:none;">
+    <video id="video" autoplay playsinline></video>
+    <button id="captureButton">Capture</button>
+    <canvas id="canvas" style="display:none;"></canvas>
+  </div>
 
-    <div id="resultCard" class="card" hidden>
-        <h3>Result</h3>
-        <div id="colorBox"></div>
-        <p id="result"></p>
-    </div>
+  <div id="result"></div>
 
-    <script>
-        const fileInput = document.getElementById('fileInput');
-        const uploadButton = document.getElementById('uploadButton');
-        const startCameraButton = document.getElementById('startCamera');
-        const takePhotoButton = document.getElementById('takePhoto');
-        const video = document.getElementById('cameraStream');
-        const canvas = document.getElementById('photoCanvas');
-        const resultCard = document.getElementById('resultCard');
-        const resultText = document.getElementById('result');
-        const colorBox = document.getElementById('colorBox');
-
-        let stream;
-
-        // Analyze uploaded image
-        uploadButton.addEventListener('click', async () => {
-            const file = fileInput.files[0];
-            if (!file) {
-                alert('Please select an image first.');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('file', file);
-
-            try {
-                const response = await fetch('/analyze', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-                showResult(result.color);
-            } catch (error) {
-                alert('Error analyzing image. Please try again.');
-                console.error(error);
-            }
-        });
-
-        // Start camera
-        startCameraButton.addEventListener('click', async () => {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-                video.hidden = false;
-                takePhotoButton.hidden = false;
-                startCameraButton.hidden = true;
-            } catch (err) {
-                alert('Could not access camera: ' + err);
-            }
-        });
-
-        // Take photo
-        takePhotoButton.addEventListener('click', () => {
-            const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            canvas.hidden = false;
-
-            // Stop camera
-            stream.getTracks().forEach(track => track.stop());
-            video.hidden = true;
-            takePhotoButton.hidden = true;
-            startCameraButton.hidden = false;
-
-            // Convert to blob and send to backend
-            canvas.toBlob(async (blob) => {
-                const formData = new FormData();
-                formData.append('file', blob, 'photo.png');
-
-                try {
-                    const response = await fetch('/analyze', { method: 'POST', body: formData });
-                    const result = await response.json();
-                    showResult(result.color);
-                } catch (err) {
-                    alert('Error analyzing photo.');
-                    console.error(err);
-                }
-            }, 'image/png');
-        });
-
-        function showResult(color) {
-            if (!color) {
-                alert('No color detected.');
-                return;
-            }
-            resultCard.hidden = false;
-            resultText.textContent = 'Detected Fondant Color: ' + color;
-            colorBox.style.backgroundColor = color;
-        }
-    </script>
+  <script src="/static/script.js"></script>
 </body>
 </html>
