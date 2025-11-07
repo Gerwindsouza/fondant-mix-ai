@@ -173,5 +173,68 @@
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
+    <script>
+const startCameraButton = document.getElementById('startCamera');
+const takePhotoButton = document.getElementById('takePhoto');
+const video = document.getElementById('cameraStream');
+const canvas = document.getElementById('photoCanvas');
+
+let stream;
+
+// Start camera
+startCameraButton.addEventListener('click', async () => {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.hidden = false;
+        takePhotoButton.hidden = false;
+    } catch (err) {
+        alert('Could not access camera: ' + err);
+    }
+});
+
+// Take photo
+takePhotoButton.addEventListener('click', () => {
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.hidden = false;
+
+    // Stop camera
+    stream.getTracks().forEach(track => track.stop());
+    video.hidden = true;
+    takePhotoButton.hidden = true;
+
+    // Convert photo to file and send to backend
+    canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append('file', blob, 'photo.png');
+
+        try {
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            alert("Detected color: " + result.color);
+        } catch (err) {
+            console.error('Error sending photo:', err);
+            alert('Error analyzing photo');
+        }
+    }, 'image/png');
+});
+</script>
+
+</body><!-- Existing upload photo input -->
+<h3>Upload a Photo</h3>
+<input type="file" id="fileInput" accept="image/*">
+
+<hr>
+
+<!-- Camera capture -->
+<h3>Take a Photo Using Camera</h3>
+<button id="startCamera">Start Camera</button>
+<video id="cameraStream" width="320" height="240" autoplay hidden></video>
+<button id="takePhoto" hidden>Take Photo</button>
+<canvas id="photoCanvas" width="320" height="240" hidden></canvas>
+
 </html>
