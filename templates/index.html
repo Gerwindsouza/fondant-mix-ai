@@ -1,240 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fondant Color Mixer AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fondant Color Mixer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f6f8;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #b14fc0;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        input[type="file"],
+        button {
+            margin: 10px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: #b14fc0;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #9d44aa;
+        }
+
+        video, canvas, img {
+            margin-top: 10px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        #result {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        #colorBox {
+            margin: 10px auto;
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎨 Fondant Color Mixer AI</h1>
-            <p class="subtitle">Perfect color matching for professional bakers</p>
-        </header>
+    <h1>🎨 Fondant Color Mixer</h1>
+    <p>Select or capture a photo to analyze the fondant color.</p>
 
-        <div class="main-content">
-            <section class="upload-section">
-                <h2>Step 1: Upload Target Color</h2>
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-placeholder">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                        <p>Click to upload or drag & drop</p>
-                        <p class="upload-hint">Paste (Ctrl+V) also works!</p>
-                    </div>
-                    <input type="file" id="imageInput" accept="image/*" hidden>
-                    <img id="previewImage" class="preview-image" alt="Preview">
-                    <div id="colorPreview" class="color-preview"></div>
-                </div>
-            </section>
-
-            <section class="settings-section">
-                <h2>Step 2: Configure Your Mix</h2>
-                
-                <div class="form-group">
-                    <label for="fondantWeight">Fondant Weight (grams):</label>
-                    <input type="number" id="fondantWeight" value="100" min="1" max="10000" step="1">
-                </div>
-
-                <div class="form-group">
-                    <label for="gelBrand">Gel Color Brand:</label>
-                    <select id="gelBrand">
-                        <option value="Wilton">Wilton (Standard)</option>
-                        <option value="AmeriColor">AmeriColor (Concentrated)</option>
-                        <option value="Sugarflair">Sugarflair</option>
-                        <option value="Generic">Generic</option>
-                    </select>
-                </div>
-
-                <div class="calibration-section">
-                    <h3>⚙️ Brand Calibration</h3>
-                    <div class="calibration-controls">
-                        <div class="form-group">
-                            <label for="brandMultiplier">
-                                Brand Intensity Multiplier: <span id="multiplierValue">1.0</span>
-                            </label>
-                            <input type="range" id="brandMultiplier" min="0.5" max="2.0" step="0.05" value="1.0">
-                            <p class="help-text">Higher = more concentrated (use less gel)</p>
-                        </div>
-                        <button type="button" id="saveCalibrationBtn" class="save-btn">Save Calibration</button>
-                    </div>
-                </div>
-
-                <div class="drop-conversion-section">
-                    <h3>💧 Drop Conversion</h3>
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="showDrops">
-                            <span>Show results in drops</span>
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label for="gramsPerDrop">Grams per drop:</label>
-                        <input type="number" id="gramsPerDrop" value="0.04" min="0.01" max="0.1" step="0.001">
-                        <p class="help-text">Standard: 1 drop = 0.04g (adjustable)</p>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Primary Colors Available:</label>
-                    <div class="color-checkboxes">
-                        <label class="color-checkbox">
-                            <input type="checkbox" name="colors" value="red" checked>
-                            <span class="color-swatch" style="background-color: rgb(255, 0, 0);"></span>
-                            <span>Red</span>
-                        </label>
-                        <label class="color-checkbox">
-                            <input type="checkbox" name="colors" value="yellow" checked>
-                            <span class="color-swatch" style="background-color: rgb(255, 255, 0);"></span>
-                            <span>Yellow</span>
-                        </label>
-                        <label class="color-checkbox">
-                            <input type="checkbox" name="colors" value="blue" checked>
-                            <span class="color-swatch" style="background-color: rgb(0, 0, 255);"></span>
-                            <span>Blue</span>
-                        </label>
-                        <label class="color-checkbox">
-                            <input type="checkbox" name="colors" value="white">
-                            <span class="color-swatch" style="background-color: rgb(255, 255, 255); border: 1px solid #ddd;"></span>
-                            <span>White</span>
-                        </label>
-                        <label class="color-checkbox">
-                            <input type="checkbox" name="colors" value="black">
-                            <span class="color-swatch" style="background-color: rgb(0, 0, 0);"></span>
-                            <span>Black</span>
-                        </label>
-                        <label class="color-checkbox">
-                            <input type="checkbox" name="colors" value="green">
-                            <span class="color-swatch" style="background-color: rgb(0, 255, 0);"></span>
-                            <span>Green</span>
-                        </label>
-                        <label class="color-checkbox">
-                            <input type="checkbox" name="colors" value="orange">
-                            <span class="color-swatch" style="background-color: rgb(255, 165, 0);"></span>
-                            <span>Orange</span>
-                        </label>
-                        <label class="color-checkbox">
-                            <input type="checkbox" name="colors" value="purple">
-                            <span class="color-swatch" style="background-color: rgb(128, 0, 128);"></span>
-                            <span>Purple</span>
-                        </label>
-                        <label class="color-checkbox">
-                            <input type="checkbox" name="colors" value="pink">
-                            <span class="color-swatch" style="background-color: rgb(255, 192, 203);"></span>
-                            <span>Pink</span>
-                        </label>
-                        <label class="color-checkbox">
-                            <input type="checkbox" name="colors" value="brown">
-                            <span class="color-swatch" style="background-color: rgb(139, 69, 19);"></span>
-                            <span>Brown</span>
-                        </label>
-                    </div>
-                </div>
-
-                <button id="calculateBtn" class="calculate-btn" disabled>
-                    Calculate Color Mix
-                </button>
-            </section>
-
-            <section class="results-section" id="resultsSection" style="display: none;">
-                <h2>Step 3: Your Color Recipe</h2>
-                
-                <div class="color-match">
-                    <div class="target-color">
-                        <div class="color-display" id="targetColorDisplay"></div>
-                        <p>Target Color</p>
-                        <p class="rgb-values" id="rgbValues"></p>
-                    </div>
-                </div>
-
-                <div class="gel-amounts" id="gelAmounts"></div>
-
-                <div class="instructions">
-                    <h3>Mixing Instructions</h3>
-                    <div id="mixingInstructions"></div>
-                </div>
-
-                <button id="resetBtn" class="reset-btn">Start New Mix</button>
-            </section>
-        </div>
-
-        <footer>
-            <p>Built for bakers who love precision 🧁</p>
-        </footer>
+    <div class="card">
+        <h3>📁 Upload a Photo</h3>
+        <input type="file" id="fileInput" accept="image/*" />
+        <button id="uploadButton">Analyze Uploaded Image</button>
     </div>
 
-    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-        <div class="spinner"></div>
-        <p>Analyzing color...</p>
+    <div class="card">
+        <h3>📷 Take a Photo Using Camera</h3>
+        <button id="startCamera">Start Camera</button>
+        <video id="cameraStream" autoplay hidden></video>
+        <button id="takePhoto" hidden>Take Photo</button>
+        <canvas id="photoCanvas" width="320" height="240" hidden></canvas>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <div id="resultCard" class="card" hidden>
+        <h3>Result</h3>
+        <div id="colorBox"></div>
+        <p id="result"></p>
+    </div>
+
     <script>
-const startCameraButton = document.getElementById('startCamera');
-const takePhotoButton = document.getElementById('takePhoto');
-const video = document.getElementById('cameraStream');
-const canvas = document.getElementById('photoCanvas');
+        const fileInput = document.getElementById('fileInput');
+        const uploadButton = document.getElementById('uploadButton');
+        const startCameraButton = document.getElementById('startCamera');
+        const takePhotoButton = document.getElementById('takePhoto');
+        const video = document.getElementById('cameraStream');
+        const canvas = document.getElementById('photoCanvas');
+        const resultCard = document.getElementById('resultCard');
+        const resultText = document.getElementById('result');
+        const colorBox = document.getElementById('colorBox');
 
-let stream;
+        let stream;
 
-// Start camera
-startCameraButton.addEventListener('click', async () => {
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-        video.hidden = false;
-        takePhotoButton.hidden = false;
-    } catch (err) {
-        alert('Could not access camera: ' + err);
-    }
-});
+        // Analyze uploaded image
+        uploadButton.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select an image first.');
+                return;
+            }
 
-// Take photo
-takePhotoButton.addEventListener('click', () => {
-    const context = canvas.getContext('2d');
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.hidden = false;
+            const formData = new FormData();
+            formData.append('file', file);
 
-    // Stop camera
-    stream.getTracks().forEach(track => track.stop());
-    video.hidden = true;
-    takePhotoButton.hidden = true;
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
 
-    // Convert photo to file and send to backend
-    canvas.toBlob(async (blob) => {
-        const formData = new FormData();
-        formData.append('file', blob, 'photo.png');
+                const result = await response.json();
+                showResult(result.color);
+            } catch (error) {
+                alert('Error analyzing image. Please try again.');
+                console.error(error);
+            }
+        });
 
-        try {
-            const response = await fetch('/analyze', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
-            alert("Detected color: " + result.color);
-        } catch (err) {
-            console.error('Error sending photo:', err);
-            alert('Error analyzing photo');
+        // Start camera
+        startCameraButton.addEventListener('click', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.hidden = false;
+                takePhotoButton.hidden = false;
+                startCameraButton.hidden = true;
+            } catch (err) {
+                alert('Could not access camera: ' + err);
+            }
+        });
+
+        // Take photo
+        takePhotoButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.hidden = false;
+
+            // Stop camera
+            stream.getTracks().forEach(track => track.stop());
+            video.hidden = true;
+            takePhotoButton.hidden = true;
+            startCameraButton.hidden = false;
+
+            // Convert to blob and send to backend
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('file', blob, 'photo.png');
+
+                try {
+                    const response = await fetch('/analyze', { method: 'POST', body: formData });
+                    const result = await response.json();
+                    showResult(result.color);
+                } catch (err) {
+                    alert('Error analyzing photo.');
+                    console.error(err);
+                }
+            }, 'image/png');
+        });
+
+        function showResult(color) {
+            if (!color) {
+                alert('No color detected.');
+                return;
+            }
+            resultCard.hidden = false;
+            resultText.textContent = 'Detected Fondant Color: ' + color;
+            colorBox.style.backgroundColor = color;
         }
-    }, 'image/png');
-});
-</script>
-
-</body><!-- Existing upload photo input -->
-<h3>Upload a Photo</h3>
-<input type="file" id="fileInput" accept="image/*">
-
-<hr>
-
-<!-- Camera capture -->
-<h3>Take a Photo Using Camera</h3>
-<button id="startCamera">Start Camera</button>
-<video id="cameraStream" width="320" height="240" autoplay hidden></video>
-<button id="takePhoto" hidden>Take Photo</button>
-<canvas id="photoCanvas" width="320" height="240" hidden></canvas>
-
+    </script>
+</body>
 </html>
