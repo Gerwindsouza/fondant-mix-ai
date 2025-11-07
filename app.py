@@ -20,8 +20,8 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-# Maximum upload size: 16MB
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+# Maximum upload size: 128MB
+app.config['MAX_CONTENT_LENGTH'] = 128 * 1024 * 1024
 
 # Path to calibration data file
 CALIBRATION_FILE = 'calibration.json'
