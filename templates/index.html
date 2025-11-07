@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fondant Color Mixer AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Fondant Color Mixer AI</h1>
+            <p class="subtitle">Perfect color matching for professional bakers</p>
+        </header>
+
+        <div class="main-content">
+            <section class="upload-section">
+                <h2>Step 1: Upload Target Color</h2>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-placeholder">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <p>Click to upload or drag & drop</p>
+                        <p class="upload-hint">Paste (Ctrl+V) also works!</p>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*" hidden>
+                    <img id="previewImage" class="preview-image" alt="Preview">
+                    <div id="colorPreview" class="color-preview"></div>
+                </div>
+            </section>
+
+            <section class="settings-section">
+                <h2>Step 2: Configure Your Mix</h2>
+                
+                <div class="form-group">
+                    <label for="fondantWeight">Fondant Weight (grams):</label>
+                    <input type="number" id="fondantWeight" value="100" min="1" max="10000" step="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="gelBrand">Gel Color Brand:</label>
+                    <select id="gelBrand">
+                        <option value="Wilton">Wilton (Standard)</option>
+                        <option value="AmeriColor">AmeriColor (Concentrated)</option>
+                        <option value="Sugarflair">Sugarflair</option>
+                        <option value="Generic">Generic</option>
+                    </select>
+                </div>
+
+                <div class="calibration-section">
+                    <h3>⚙️ Brand Calibration</h3>
+                    <div class="calibration-controls">
+                        <div class="form-group">
+                            <label for="brandMultiplier">
+                                Brand Intensity Multiplier: <span id="multiplierValue">1.0</span>
+                            </label>
+                            <input type="range" id="brandMultiplier" min="0.5" max="2.0" step="0.05" value="1.0">
+                            <p class="help-text">Higher = more concentrated (use less gel)</p>
+                        </div>
+                        <button type="button" id="saveCalibrationBtn" class="save-btn">Save Calibration</button>
+                    </div>
+                </div>
+
+                <div class="drop-conversion-section">
+                    <h3>💧 Drop Conversion</h3>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="showDrops">
+                            <span>Show results in drops</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="gramsPerDrop">Grams per drop:</label>
+                        <input type="number" id="gramsPerDrop" value="0.04" min="0.01" max="0.1" step="0.001">
+                        <p class="help-text">Standard: 1 drop = 0.04g (adjustable)</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Primary Colors Available:</label>
+                    <div class="color-checkboxes">
+                        <label class="color-checkbox">
+                            <input type="checkbox" name="colors" value="red" checked>
+                            <span class="color-swatch" style="background-color: rgb(255, 0, 0);"></span>
+                            <span>Red</span>
+                        </label>
+                        <label class="color-checkbox">
+                            <input type="checkbox" name="colors" value="yellow" checked>
+                            <span class="color-swatch" style="background-color: rgb(255, 255, 0);"></span>
+                            <span>Yellow</span>
+                        </label>
+                        <label class="color-checkbox">
+                            <input type="checkbox" name="colors" value="blue" checked>
+                            <span class="color-swatch" style="background-color: rgb(0, 0, 255);"></span>
+                            <span>Blue</span>
+                        </label>
+                        <label class="color-checkbox">
+                            <input type="checkbox" name="colors" value="white">
+                            <span class="color-swatch" style="background-color: rgb(255, 255, 255); border: 1px solid #ddd;"></span>
+                            <span>White</span>
+                        </label>
+                        <label class="color-checkbox">
+                            <input type="checkbox" name="colors" value="black">
+                            <span class="color-swatch" style="background-color: rgb(0, 0, 0);"></span>
+                            <span>Black</span>
+                        </label>
+                        <label class="color-checkbox">
+                            <input type="checkbox" name="colors" value="green">
+                            <span class="color-swatch" style="background-color: rgb(0, 255, 0);"></span>
+                            <span>Green</span>
+                        </label>
+                        <label class="color-checkbox">
+                            <input type="checkbox" name="colors" value="orange">
+                            <span class="color-swatch" style="background-color: rgb(255, 165, 0);"></span>
+                            <span>Orange</span>
+                        </label>
+                        <label class="color-checkbox">
+                            <input type="checkbox" name="colors" value="purple">
+                            <span class="color-swatch" style="background-color: rgb(128, 0, 128);"></span>
+                            <span>Purple</span>
+                        </label>
+                        <label class="color-checkbox">
+                            <input type="checkbox" name="colors" value="pink">
+                            <span class="color-swatch" style="background-color: rgb(255, 192, 203);"></span>
+                            <span>Pink</span>
+                        </label>
+                        <label class="color-checkbox">
+                            <input type="checkbox" name="colors" value="brown">
+                            <span class="color-swatch" style="background-color: rgb(139, 69, 19);"></span>
+                            <span>Brown</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button id="calculateBtn" class="calculate-btn" disabled>
+                    Calculate Color Mix
+                </button>
+            </section>
+
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <h2>Step 3: Your Color Recipe</h2>
+                
+                <div class="color-match">
+                    <div class="target-color">
+                        <div class="color-display" id="targetColorDisplay"></div>
+                        <p>Target Color</p>
+                        <p class="rgb-values" id="rgbValues"></p>
+                    </div>
+                </div>
+
+                <div class="gel-amounts" id="gelAmounts"></div>
+
+                <div class="instructions">
+                    <h3>Mixing Instructions</h3>
+                    <div id="mixingInstructions"></div>
+                </div>
+
+                <button id="resetBtn" class="reset-btn">Start New Mix</button>
+            </section>
+        </div>
+
+        <footer>
+            <p>Built for bakers who love precision 🧁</p>
+        </footer>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Analyzing color...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

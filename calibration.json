@@ -1,0 +1,12 @@
+{
+  "brand_multipliers": {
+    "Wilton": 1.0,
+    "AmeriColor": 1.15,
+    "Sugarflair": 1.05,
+    "Generic": 0.8
+  },
+  "drop_conversion": {
+    "enabled": false,
+    "grams_per_drop": 0.04
+  }
+}
