@@ -1,0 +1,8 @@
+Flask
+gunicorn
+Pillow
+numpy
+colorthief
+colormath
+scipy
+requests
