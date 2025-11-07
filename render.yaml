@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: fondant-color-mixer
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app
